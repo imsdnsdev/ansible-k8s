@@ -1,15 +1,20 @@
 ---
 - hosts: all
-  become: yes
+  become: true
   roles:
   - swapoff
+  - docker-engine
 
 - hosts: master-nodes
-  become: yes
+  become: true
   roles:
+  - swapoff
+  - docker-engine
   - master
 
 - hosts: worker-nodes
-  become: yes
+  become: true
   roles:
+  - swapoff
+  - docker-engine
   - worker

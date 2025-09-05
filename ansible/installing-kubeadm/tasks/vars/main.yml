@@ -1,0 +1,11 @@
+---
+kube-packages:
+  - kubelet
+  - kubeadm
+  - kubectl
+
+kube-version: "1.34*"
+
+kubernetes_repo_url: "https://pkgs.k8s.io/core:/stable:/v1.34/deb/"
+gpg_key_url: "{{ kubernetes_repo_url }}Release.key"
+keyring_path: /etc/apt/keyrings/kubernetes-archive-keyring.gpg

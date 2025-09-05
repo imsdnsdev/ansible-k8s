@@ -1,0 +1,39 @@
+
+- name: Обновить кэш пакетов
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Установить зависимости
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gpg
+    state: present
+
+- name: Создать директорию /etc/apt/keyrings
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Скачать GPG-ключ Kubernetes и конвертировать в .gpg
+  ansible.builtin.get_url:
+    url: "{{ gpg_key_url }}"
+    dest: "{{ keyring_path }}"
+    mode: '0644'
+    force: yes
+  register: gpg_key_result
+
+- name: Добавить репозиторий Kubernetes
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by={{ keyring_path }}] {{ kubernetes_repo_url }} /"
+    state: present
+    filename: kubernetes
+  when: gpg_key_result is succeeded
+
+- name: Обновить кэш после добавления репозитория
+  ansible.builtin.apt:
+    update_cache: yes
+  when: gpg_key_result is succeeded

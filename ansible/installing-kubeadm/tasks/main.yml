@@ -1,0 +1,35 @@
+---
+- name: Обновить кэш пакетов
+  apt:
+    update_cache: yes
+
+- name: Установить зависимости
+  apt:
+    name:
+      - apt-transport-https
+      - gpg
+    state: present
+
+- name: Создать /etc/apt/keyrings
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Скачать GPG-ключ Kubernetes
+  command: >
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key
+    | gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+
+- name: Добавить репозиторий Kubernetes
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /"
+    state: present
+    filename: kubernetes
+
+- name: Обновить кэш после добавления репозитория
+  apt:
+    update_cache: yes
+
